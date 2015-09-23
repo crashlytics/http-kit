@@ -11,7 +11,8 @@
   (:require [org.httpkit.client :as http]
             [clojure.java.io :as io]
             [clj-http.client :as clj-http])
-  (:import java.nio.ByteBuffer))
+  (:import java.nio.ByteBuffer
+           (java.net StandardSocketOptions)))
 
 (defroutes test-routes
   (GET "/get" [] "hello world")
@@ -98,6 +99,7 @@
                                                        (is (= 200 (:status resp)))
                                                        resp)))))
     (is (= 404 (:status @(http/get (str host "/404")))))
+    (is (= 404 (:status @(http/get (str host "/404") {:keepalive 0 :socket-options {StandardSocketOptions/TCP_NODELAY true}}))))
     (is (= 200 (:status @(http/post (str host "/post") (fn [resp]
                                                          (is (= 200 (:status resp)))
                                                          resp)))))

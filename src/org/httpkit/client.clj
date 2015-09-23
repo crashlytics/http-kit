@@ -134,7 +134,7 @@
   Request options:
     :url :method :headers :timeout :query-params :form-params :as
     :client :body :basic-auth :user-agent :filter :worker-pool"
-  [{:keys [client timeout filter worker-pool keepalive as follow-redirects max-redirects response]
+  [{:keys [client timeout filter worker-pool keepalive as follow-redirects max-redirects response socket-options]
     :as opts
     :or {client @default-client
          timeout 60000
@@ -144,6 +144,7 @@
          worker-pool default-pool
          response (promise)
          keepalive 120000
+         socket-options {}
          as :auto}}
    & [callback]]
   (let [{:keys [url method headers body sslengine]} (coerce-req opts)
@@ -180,7 +181,7 @@
         listener (RespListener. handler filter worker-pool
                                 ;; only the 4 support now
                                 (case as :auto 1 :text 2 :stream 3 :byte-array 4))
-        cfg (RequestConfig. method headers body timeout keepalive)]
+        cfg (RequestConfig. method headers body timeout keepalive socket-options)]
     (.exec ^HttpClient client url cfg sslengine listener)
     response))
 

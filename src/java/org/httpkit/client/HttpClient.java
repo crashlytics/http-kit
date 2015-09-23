@@ -14,6 +14,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -340,6 +341,12 @@ public final class HttpClient implements Runnable {
             try {
                 SocketChannel ch = SocketChannel.open();
                 ch.configureBlocking(false);
+                Map<SocketOption, Object> socketOptions = job.cfg.socketOptions;
+                if (socketOptions != null) {
+                    for (SocketOption socketOption : socketOptions.keySet()) {
+                        ch.setOption(socketOption, socketOptions.get(socketOption));
+                    }
+                }
                 boolean connected = ch.connect(job.addr);
                 job.isConnected = connected;
 
